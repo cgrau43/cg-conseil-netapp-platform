@@ -55,5 +55,15 @@ Les seuils sont définis par client.
 
 Ces règles sont appliquées de manière déterministe dans n8n.
 L’IA intervient uniquement pour l’explication et la reformulation.
+---
+
+## Sécurité (MVP)
+
+- Le poste Windows pousse les données vers le VPS (aucune connexion entrante côté client).
+- Le Webhook n8n est protégé par un token secret.
+- Les communications sont réalisées en HTTPS.
+- PostgreSQL n’est pas exposé publiquement.
+- Sauvegarde hebdomadaire de la base de données.
+
 
 
