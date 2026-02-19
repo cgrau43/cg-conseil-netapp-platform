@@ -64,6 +64,34 @@ L’IA intervient uniquement pour l’explication et la reformulation.
 - Les communications sont réalisées en HTTPS.
 - PostgreSQL n’est pas exposé publiquement.
 - Sauvegarde hebdomadaire de la base de données.
+- ---
+
+## Format Standard JSON d’Ingestion (MVP)
+
+Le poste local envoie un JSON structuré vers le Webhook n8n.
+
+Exemple :
+
+```json
+{
+  "client_id": "client_pilote",
+  "timestamp": "2024-06-18T07:30:00Z",
+  "metrics": {
+    "replication": {
+      "snapmirror_lag_minutes": 45,
+      "rpo_expected_minutes": 15
+    },
+    "capacity": {
+      "volume_name": "ERP_DATA",
+      "used_percent": 82
+    },
+    "backup": {
+      "last_success_hours": 12,
+      "status": "OK"
+    }
+  }
+}
+
 
 
 
