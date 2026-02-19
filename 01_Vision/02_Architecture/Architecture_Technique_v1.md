@@ -33,4 +33,27 @@ Mettre en place une plateforme simple, maîtrisée et évolutive permettant :
 
 5. Chaque matin à 08:00 :
    - Génération d’un mail quotidien de synthèse
+   - ---
+
+## Règles & Seuils (MVP)
+
+Les seuils sont définis par client.
+
+### Réplication (SnapMirror)
+
+- Lag > 60 minutes → WARNING
+- Lag > 120 minutes → CRITICAL
+
+### Capacité
+
+- Volume > 85% → WARNING
+- Volume > 90% → CRITICAL
+
+### Sauvegarde
+
+- Aucun backup réussi depuis 24h → CRITICAL
+
+Ces règles sont appliquées de manière déterministe dans n8n.
+L’IA intervient uniquement pour l’explication et la reformulation.
+
 
