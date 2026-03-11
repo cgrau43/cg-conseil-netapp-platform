@@ -24,7 +24,7 @@
 - ✅ Structure repo GitHub (31 fichiers) — `platform/`
 - ✅ Workflow n8n `NETAPP-INGEST-BASE` créé sur `ttref.cg-conseil.com`
 - ✅ Connexion PostgreSQL Twenty Two opérationnelle
-- 🔲 🔴 Collecteur SSH ONTAP Python (Paramiko) — remplace REST API
+- ✅ Collecteur SSH ONTAP Python (Paramiko) — collector.py créé, à tester sur Twenty Two
 - 🔲 🔴 Matrice qualification EMS (JSON) — niveaux EMERGENCY/ALERT/ERROR/WARNING
 - 🔲 🔴 Requalification métier EMS (signal ponctuel vs récurrent)
 
@@ -122,6 +122,7 @@
 | Date | Modifications |
 |---|---|
 | 2026-03-11 | Création initiale — synthèse journée de travail |
+| 2026-03-11 | Collecteur SSH ONTAP créé, CLAUDE.md + TODO.md pushés sur GitHub, Mac Pro 2012 dual boot Ubuntu planifié |
 
 ---
 
