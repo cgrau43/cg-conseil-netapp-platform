@@ -1,0 +1,40 @@
+{
+  "_comment": "Règles de qualification backup — SnapCenter et Veeam",
+  "_version": "1.0",
+
+  "failure_levels": {
+    "p2_patterns": ["prod", "production", "critical", "prd"],
+    "p3_patterns": ["preprod", "dev", "test", "recette"],
+    "_note": "Jobs dont le nom contient ces patterns sont escaladés en P2 en cas d'échec"
+  },
+
+  "retention_rules": {
+    "minimum_restore_points": 7,
+    "alert_if_below": true,
+    "check_frequency_hours": 24
+  },
+
+  "duration_thresholds": {
+    "warning_multiplier": 2.0,
+    "critical_multiplier": 3.0,
+    "_note": "Alerte si durée > N * durée_moyenne_historique"
+  },
+
+  "schedule_compliance": {
+    "max_delay_minutes": 60,
+    "alert_on_missed_job": true,
+    "missed_job_action": "notify_oncall"
+  },
+
+  "snapcenter": {
+    "check_catalog_integrity": true,
+    "verify_backup_mountable": false,
+    "_note": "Vérification montabilité désactivée par défaut (coûteux)"
+  },
+
+  "veeam": {
+    "check_repo_free_space_percent": 20,
+    "alert_on_repo_full": true,
+    "synthetic_full_required": true
+  }
+}

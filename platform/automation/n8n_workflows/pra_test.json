@@ -1,0 +1,77 @@
+{
+  "_comment": "Workflow n8n — Test PRA automatisé trimestriel",
+  "_version": "1.0",
+  "name": "MCO NetApp — Test PRA Automatisé",
+  "nodes": [
+    {
+      "id": "trigger_quarterly",
+      "name": "Déclencheur trimestriel",
+      "type": "n8n-nodes-base.cron",
+      "parameters": {
+        "cronExpression": "0 2 1 1,4,7,10 *",
+        "_comment": "1er janvier, avril, juillet, octobre à 2h00"
+      }
+    },
+    {
+      "id": "test_cifs",
+      "name": "Test restauration CIFS",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{ $env.PLATFORM_API_URL }}/api/automation/restore-test/cifs",
+        "method": "POST",
+        "timeout": 300000
+      }
+    },
+    {
+      "id": "test_nfs",
+      "name": "Test restauration NFS",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{ $env.PLATFORM_API_URL }}/api/automation/restore-test/nfs",
+        "method": "POST",
+        "timeout": 300000
+      }
+    },
+    {
+      "id": "test_vm",
+      "name": "Test restauration VM",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{ $env.PLATFORM_API_URL }}/api/automation/restore-test/vm",
+        "method": "POST",
+        "timeout": 600000
+      }
+    },
+    {
+      "id": "generate_pra_report",
+      "name": "Génération rapport PRA",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{ $env.PLATFORM_API_URL }}/api/reports/pra",
+        "method": "POST",
+        "body": {
+          "cifs_result": "={{ $node['test_cifs'].json }}",
+          "nfs_result": "={{ $node['test_nfs'].json }}",
+          "vm_result": "={{ $node['test_vm'].json }}"
+        }
+      }
+    },
+    {
+      "id": "notify_management",
+      "name": "Envoi rapport management",
+      "type": "n8n-nodes-base.emailSend",
+      "parameters": {
+        "to": "={{ $env.MANAGEMENT_EMAIL }}",
+        "subject": "Rapport Test PRA — {{ new Date().toLocaleDateString('fr-FR') }}",
+        "body": "={{ $node['generate_pra_report'].json.report }}"
+      }
+    }
+  ],
+  "connections": {
+    "trigger_quarterly": ["test_cifs", "test_nfs", "test_vm"],
+    "test_cifs": ["generate_pra_report"],
+    "test_nfs": ["generate_pra_report"],
+    "test_vm": ["generate_pra_report"],
+    "generate_pra_report": ["notify_management"]
+  }
+}

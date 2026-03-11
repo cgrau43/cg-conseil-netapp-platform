@@ -1,0 +1,39 @@
+{
+  "_comment": "Règles de qualification stockage — agrégats et volumes",
+  "_version": "1.0",
+
+  "aggregate_thresholds": {
+    "warning_percent": 75,
+    "alert_percent": 85,
+    "critical_percent": 95,
+    "action_on_critical": "notify_oncall"
+  },
+
+  "volume_thresholds": {
+    "warning_percent": 80,
+    "alert_percent": 90,
+    "critical_percent": 95,
+    "check_autosize": true,
+    "action_on_critical": "check_volume_autosize"
+  },
+
+  "snapshot_thresholds": {
+    "max_snapshot_reserve_used_percent": 80,
+    "max_snapshot_count": 250,
+    "action_on_overflow": "trigger_snapshot_cleanup_review"
+  },
+
+  "disk_rules": {
+    "spare_minimum": 1,
+    "alert_on_zero_spare": true,
+    "raid_degraded_action": "notify_oncall_immediate",
+    "disk_failure_action": "open_incident_p2"
+  },
+
+  "iops_thresholds": {
+    "latency_warning_ms": 5,
+    "latency_critical_ms": 20,
+    "enabled": false,
+    "_note": "Activer si collecte de métriques de performance activée"
+  }
+}

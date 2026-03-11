@@ -1,0 +1,93 @@
+{
+  "_comment": "Matrice de criticité EMS — CG CONSEIL Plateforme MCO NetApp",
+  "_version": "1.0",
+  "_description": "Mapping des sévérités EMS ONTAP vers les niveaux d'alerte métier",
+
+  "severity_levels": {
+    "EMERGENCY": {
+      "ontap_level": 0,
+      "business_level": "P1",
+      "color": "red",
+      "response_time_minutes": 15,
+      "auto_alert": true,
+      "description": "Panne critique — service interrompu, intervention immédiate requise"
+    },
+    "ALERT": {
+      "ontap_level": 1,
+      "business_level": "P2",
+      "color": "orange",
+      "response_time_minutes": 60,
+      "auto_alert": true,
+      "description": "Dégradation sévère — risque d'interruption imminente"
+    },
+    "ERROR": {
+      "ontap_level": 3,
+      "business_level": "P3",
+      "color": "yellow",
+      "response_time_minutes": 240,
+      "auto_alert": true,
+      "description": "Erreur fonctionnelle — supervision renforcée requise"
+    },
+    "WARNING": {
+      "ontap_level": 4,
+      "business_level": "P4",
+      "color": "blue",
+      "response_time_minutes": 1440,
+      "auto_alert": false,
+      "description": "Avertissement — traitement dans les 24h"
+    },
+    "NOTICE": {
+      "ontap_level": 5,
+      "business_level": "INFO",
+      "color": "green",
+      "response_time_minutes": null,
+      "auto_alert": false,
+      "description": "Information — journalisé, pas d'action requise"
+    }
+  },
+
+  "known_events": {
+    "raid.rg.diskerr.read": {
+      "severity_override": "ALERT",
+      "category": "storage",
+      "auto_action": "check_spare_disks",
+      "kb_ref": "KB000123"
+    },
+    "wafl.vol.autosize.done": {
+      "severity_override": "NOTICE",
+      "category": "storage",
+      "auto_action": null,
+      "kb_ref": null
+    },
+    "snapmirror.dst.lag.warn": {
+      "severity_override": "WARNING",
+      "category": "pra",
+      "auto_action": "check_snapmirror_schedule",
+      "kb_ref": "KB000456"
+    },
+    "snapmirror.dst.lag.err": {
+      "severity_override": "ALERT",
+      "category": "pra",
+      "auto_action": "notify_oncall",
+      "kb_ref": "KB000456"
+    },
+    "vol.full": {
+      "severity_override": "ALERT",
+      "category": "storage",
+      "auto_action": "check_volume_autosize",
+      "kb_ref": "KB000789"
+    },
+    "aggr.nearly.full": {
+      "severity_override": "WARNING",
+      "category": "storage",
+      "auto_action": "check_aggregate_capacity",
+      "kb_ref": "KB000789"
+    },
+    "mgwd.partner.down": {
+      "severity_override": "EMERGENCY",
+      "category": "ha",
+      "auto_action": "notify_oncall_immediate",
+      "kb_ref": "KB001001"
+    }
+  }
+}

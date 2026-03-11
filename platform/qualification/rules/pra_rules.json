@@ -1,0 +1,43 @@
+{
+  "_comment": "Règles PRA — SnapMirror, RPO/RTO et tests de bascule",
+  "_version": "1.0",
+
+  "snapmirror_rules": {
+    "lag_warning_hours": 4,
+    "lag_critical_hours": 8,
+    "lag_emergency_hours": 24,
+    "check_relationship_health": true,
+    "alert_on_broken_off": true,
+    "action_on_lag_critical": "notify_oncall_and_open_incident"
+  },
+
+  "rpo_objectives": {
+    "default_hours": 4,
+    "critical_volumes_hours": 1,
+    "_note": "Définir les volumes critiques dans critical_volumes_list"
+  },
+
+  "rto_objectives": {
+    "default_hours": 4,
+    "critical_services_hours": 2
+  },
+
+  "pra_test_schedule": {
+    "frequency": "quarterly",
+    "test_types": ["cifs_restore", "nfs_restore", "vm_restore"],
+    "generate_report": true,
+    "notify_on_failure": true
+  },
+
+  "snapmirror_monitoring": {
+    "check_interval_minutes": 30,
+    "alert_on_quiesced": true,
+    "alert_on_transferring_too_long_hours": 6
+  },
+
+  "compliance": {
+    "document_test_results": true,
+    "report_template": "pra_report.md",
+    "require_human_validation": true
+  }
+}

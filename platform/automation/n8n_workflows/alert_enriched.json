@@ -1,0 +1,68 @@
+{
+  "_comment": "Workflow n8n — Alerte enrichie par IA (EMS P1/P2)",
+  "_version": "1.0",
+  "name": "MCO NetApp — Alerte Enrichie",
+  "nodes": [
+    {
+      "id": "webhook_trigger",
+      "name": "Webhook alerte entrante",
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "path": "netapp-alert",
+        "method": "POST",
+        "_comment": "Reçoit les alertes P1/P2 depuis le qualificateur"
+      }
+    },
+    {
+      "id": "filter_critical",
+      "name": "Filtre P1/P2 uniquement",
+      "type": "n8n-nodes-base.if",
+      "parameters": {
+        "conditions": {
+          "string": [{"value1": "={{ $json.business_level }}", "operation": "regex", "value2": "^P[12]$"}]
+        }
+      }
+    },
+    {
+      "id": "rag_context",
+      "name": "Récupération contexte RAG",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{ $env.PLATFORM_API_URL }}/api/alerts/{{ $json.event_id }}/context",
+        "method": "GET"
+      }
+    },
+    {
+      "id": "enrich_with_claude",
+      "name": "Enrichissement analyse Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{ $env.PLATFORM_API_URL }}/api/alerts/analyze",
+        "method": "POST",
+        "body": {
+          "event": "={{ $node['webhook_trigger'].json }}",
+          "context": "={{ $node['rag_context'].json }}"
+        }
+      }
+    },
+    {
+      "id": "notify_teams",
+      "name": "Notification Teams/Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{ $env.WEBHOOK_TEAMS_URL }}",
+        "method": "POST",
+        "body": {
+          "text": "🔴 Alerte {{ $node['webhook_trigger'].json.business_level }} — {{ $node['enrich_with_claude'].json.summary }}",
+          "action": "={{ $node['enrich_with_claude'].json.recommended_action }}"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "webhook_trigger": ["filter_critical"],
+    "filter_critical": ["rag_context"],
+    "rag_context": ["enrich_with_claude"],
+    "enrich_with_claude": ["notify_teams"]
+  }
+}

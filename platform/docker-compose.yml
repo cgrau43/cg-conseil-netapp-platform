@@ -1,0 +1,106 @@
+version: "3.9"
+
+# CG CONSEIL — Plateforme MCO NetApp
+# Stack complète : API FastAPI + n8n + PostgreSQL
+
+services:
+
+  # ------------------------------------------------------------------ #
+  # API FastAPI — Plateforme MCO                                         #
+  # ------------------------------------------------------------------ #
+  api:
+    build:
+      context: ..
+      dockerfile: platform/Dockerfile
+    container_name: mco-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ONTAP_CLUSTER_URL=${ONTAP_CLUSTER_URL}
+      - ONTAP_USERNAME=${ONTAP_USERNAME}
+      - ONTAP_PASSWORD=${ONTAP_PASSWORD}
+      - SNAPCENTER_URL=${SNAPCENTER_URL}
+      - SNAPCENTER_TOKEN=${SNAPCENTER_TOKEN}
+      - VEEAM_URL=${VEEAM_URL}
+      - VEEAM_USERNAME=${VEEAM_USERNAME}
+      - VEEAM_PASSWORD=${VEEAM_PASSWORD}
+      - DATABASE_URL=postgresql://mco:${POSTGRES_PASSWORD}@postgres:5432/mco
+      - CORS_ORIGINS=http://localhost:5678
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../platform/rag/knowledge_base:/app/rag/knowledge_base:ro
+    networks:
+      - mco-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ------------------------------------------------------------------ #
+  # n8n — Orchestrateur de workflows                                     #
+  # ------------------------------------------------------------------ #
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: mco-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=mco
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - PLATFORM_API_URL=http://api:8000
+      - REPORT_RECIPIENTS=${REPORT_RECIPIENTS}
+      - WEBHOOK_TEAMS_URL=${WEBHOOK_TEAMS_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./automation/n8n_workflows:/home/node/.n8n/workflows:ro
+    networks:
+      - mco-net
+
+  # ------------------------------------------------------------------ #
+  # PostgreSQL — Base de données                                         #
+  # ------------------------------------------------------------------ #
+  postgres:
+    image: postgres:16-alpine
+    container_name: mco-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=mco
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_MULTIPLE_DATABASES=mco,n8n
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mco-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mco"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  n8n_data:
+
+networks:
+  mco-net:
+    driver: bridge

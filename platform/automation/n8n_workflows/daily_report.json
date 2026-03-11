@@ -1,0 +1,64 @@
+{
+  "_comment": "Workflow n8n — Rapport journalier automatique MCO NetApp",
+  "_version": "1.0",
+  "name": "MCO NetApp — Rapport Journalier",
+  "nodes": [
+    {
+      "id": "trigger",
+      "name": "Déclencheur quotidien",
+      "type": "n8n-nodes-base.cron",
+      "parameters": {
+        "cronExpression": "0 7 * * 1-5",
+        "_comment": "Lundi-vendredi à 7h00"
+      }
+    },
+    {
+      "id": "collect_ems",
+      "name": "Collecte EMS (24h)",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{ $env.PLATFORM_API_URL }}/api/health",
+        "method": "GET",
+        "authentication": "bearerToken"
+      }
+    },
+    {
+      "id": "collect_backup",
+      "name": "Collecte Jobs Backup",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{ $env.PLATFORM_API_URL }}/api/alerts?source=backup&hours=24",
+        "method": "GET"
+      }
+    },
+    {
+      "id": "generate_report",
+      "name": "Génération rapport Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{ $env.PLATFORM_API_URL }}/api/reports/daily",
+        "method": "POST",
+        "body": {
+          "ems_events": "={{ $node['collect_ems'].json }}",
+          "backup_jobs": "={{ $node['collect_backup'].json }}"
+        }
+      }
+    },
+    {
+      "id": "send_email",
+      "name": "Envoi email direction",
+      "type": "n8n-nodes-base.emailSend",
+      "parameters": {
+        "to": "={{ $env.REPORT_RECIPIENTS }}",
+        "subject": "Rapport MCO NetApp — {{ new Date().toLocaleDateString('fr-FR') }}",
+        "body": "={{ $node['generate_report'].json.report }}"
+      }
+    }
+  ],
+  "connections": {
+    "trigger": ["collect_ems", "collect_backup"],
+    "collect_ems": ["generate_report"],
+    "collect_backup": ["generate_report"],
+    "generate_report": ["send_email"]
+  }
+}
