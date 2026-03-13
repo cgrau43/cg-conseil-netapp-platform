@@ -23,6 +23,13 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# Force UTF-8 sur stdout (Windows cp1252 sinon) — ou lancer avec: python -X utf8
+import io
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+else:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 import anthropic
 from dotenv import load_dotenv
 
