@@ -1,93 +1,519 @@
 {
-  "_comment": "Matrice de criticité EMS — CG CONSEIL Plateforme MCO NetApp",
-  "_version": "1.0",
-  "_description": "Mapping des sévérités EMS ONTAP vers les niveaux d'alerte métier",
-
-  "severity_levels": {
-    "EMERGENCY": {
-      "ontap_level": 0,
-      "business_level": "P1",
-      "color": "red",
-      "response_time_minutes": 15,
-      "auto_alert": true,
-      "description": "Panne critique — service interrompu, intervention immédiate requise"
+  "version": "1.0",
+  "client": "twentytwo",
+  "rules": [
+    {
+      "pattern": "snapvault.truncated",
+      "severity": "ERROR",
+      "category": "backup",
+      "jira_request_type": "JIRA_REQUEST_TYPE_BACKUP",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Relation SnapVault tronquee - verifier la coherence du backup"
     },
-    "ALERT": {
-      "ontap_level": 1,
-      "business_level": "P2",
-      "color": "orange",
-      "response_time_minutes": 60,
-      "auto_alert": true,
-      "description": "Dégradation sévère — risque d'interruption imminente"
+    {
+      "pattern": "snapvault.lag.warn",
+      "severity": "WARNING",
+      "category": "backup",
+      "jira_request_type": "JIRA_REQUEST_TYPE_BACKUP",
+      "action": "create_ticket",
+      "priority": "medium",
+      "message_fr": "Delai replication SnapVault depassant le seuil avertissement"
     },
-    "ERROR": {
-      "ontap_level": 3,
-      "business_level": "P3",
-      "color": "yellow",
-      "response_time_minutes": 240,
-      "auto_alert": true,
-      "description": "Erreur fonctionnelle — supervision renforcée requise"
+    {
+      "pattern": "snapvault.lag.err",
+      "severity": "ERROR",
+      "category": "backup",
+      "jira_request_type": "JIRA_REQUEST_TYPE_BACKUP",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Delai replication SnapVault critique - SLA backup en risque"
     },
-    "WARNING": {
-      "ontap_level": 4,
-      "business_level": "P4",
-      "color": "blue",
-      "response_time_minutes": 1440,
-      "auto_alert": false,
-      "description": "Avertissement — traitement dans les 24h"
+    {
+      "pattern": "snapvault.dst.snap.miss",
+      "severity": "ERROR",
+      "category": "backup",
+      "jira_request_type": "JIRA_REQUEST_TYPE_BACKUP",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Snapshot SnapVault manquant sur la destination - backup incomplet"
     },
-    "NOTICE": {
-      "ontap_level": 5,
-      "business_level": "INFO",
-      "color": "green",
-      "response_time_minutes": null,
-      "auto_alert": false,
-      "description": "Information — journalisé, pas d'action requise"
+    {
+      "pattern": "snapvault.src.snap.miss",
+      "severity": "ERROR",
+      "category": "backup",
+      "jira_request_type": "JIRA_REQUEST_TYPE_BACKUP",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Snapshot SnapVault manquant sur la source - backup SnapCenter en echec"
+    },
+    {
+      "pattern": "snapvault.transfer.fail",
+      "severity": "ERROR",
+      "category": "backup",
+      "jira_request_type": "JIRA_REQUEST_TYPE_BACKUP",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Transfert SnapVault en echec - verifier la connectivite inter-cluster"
+    },
+    {
+      "pattern": "sc.backup.fail",
+      "severity": "ERROR",
+      "category": "backup",
+      "jira_request_type": "JIRA_REQUEST_TYPE_BACKUP",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Backup SnapCenter en echec - intervention requise"
+    },
+    {
+      "pattern": "sc.restore.fail",
+      "severity": "ERROR",
+      "category": "backup",
+      "jira_request_type": "JIRA_REQUEST_TYPE_BACKUP",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Restauration SnapCenter en echec - PRA compromis"
+    },
+    {
+      "pattern": "snapmgr.snapshot.missed",
+      "severity": "ERROR",
+      "category": "backup",
+      "jira_request_type": "JIRA_REQUEST_TYPE_BACKUP",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Snapshot planifie manquant - politique de protection non respectee"
+    },
+    {
+      "pattern": "snapmgr.vol.nosnap",
+      "severity": "WARNING",
+      "category": "backup",
+      "jira_request_type": "JIRA_REQUEST_TYPE_BACKUP",
+      "action": "create_ticket",
+      "priority": "medium",
+      "message_fr": "Volume sans snapshot depuis trop longtemps - verifier la planification"
+    },
+    {
+      "pattern": "snapmirror.transfer.fail",
+      "severity": "ERROR",
+      "category": "snapmirror",
+      "jira_request_type": "JIRA_REQUEST_TYPE_PRA",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Transfert SnapMirror en echec - replication PRA interrompue"
+    },
+    {
+      "pattern": "snapmirror.lag.warn",
+      "severity": "WARNING",
+      "category": "snapmirror",
+      "jira_request_type": "JIRA_REQUEST_TYPE_PRA",
+      "action": "create_ticket",
+      "priority": "medium",
+      "message_fr": "Delai SnapMirror depassant le seuil - RPO en risque"
+    },
+    {
+      "pattern": "snapmirror.lag.err",
+      "severity": "ERROR",
+      "category": "snapmirror",
+      "jira_request_type": "JIRA_REQUEST_TYPE_PRA",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Delai SnapMirror critique - RPO non respecte, PRA degrade"
+    },
+    {
+      "pattern": "snapmirror.state.change",
+      "severity": "WARNING",
+      "category": "snapmirror",
+      "jira_request_type": "JIRA_REQUEST_TYPE_PRA",
+      "action": "create_ticket",
+      "priority": "medium",
+      "message_fr": "Changement etat SnapMirror - verifier la relation de replication"
+    },
+    {
+      "pattern": "snapmirror.dst.quiesced",
+      "severity": "WARNING",
+      "category": "snapmirror",
+      "jira_request_type": "JIRA_REQUEST_TYPE_PRA",
+      "action": "update_ticket",
+      "priority": "low",
+      "message_fr": "Relation SnapMirror mise en pause - operation planifiee ou manuelle"
+    },
+    {
+      "pattern": "snapmirror.broken.off",
+      "severity": "ALERT",
+      "category": "snapmirror",
+      "jira_request_type": "JIRA_REQUEST_TYPE_PRA",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Relation SnapMirror rompue broken-off - basculement PRA en cours ou erreur critique"
+    },
+    {
+      "pattern": "monitor.volume.full",
+      "severity": "EMERGENCY",
+      "category": "capacite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_CAPACITE",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Volume plein 100% - risque indisponibilite donnees immediat"
+    },
+    {
+      "pattern": "monitor.volume.nearlyFull",
+      "severity": "ERROR",
+      "category": "capacite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_CAPACITE",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Volume presque plein >95% - extension ou nettoyage requis rapidement"
+    },
+    {
+      "pattern": "monitor.vol.autosize.done",
+      "severity": "WARNING",
+      "category": "capacite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_CAPACITE",
+      "action": "update_ticket",
+      "priority": "medium",
+      "message_fr": "Autosize declenche sur le volume - surveiller la croissance des donnees"
+    },
+    {
+      "pattern": "wafl.vol.autosize.fail",
+      "severity": "ERROR",
+      "category": "capacite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_CAPACITE",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Echec de l autosize - le volume ne peut pas agrandir automatiquement"
+    },
+    {
+      "pattern": "monitor.aggr.nearlyFull",
+      "severity": "ERROR",
+      "category": "capacite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_CAPACITE",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Agregat presque plein >90% - ajouter des disques ou deplacer des volumes"
+    },
+    {
+      "pattern": "monitor.aggr.full",
+      "severity": "EMERGENCY",
+      "category": "capacite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_CAPACITE",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Agregat plein - aucune ecriture possible, intervention immediate requise"
+    },
+    {
+      "pattern": "quota.exceeded",
+      "severity": "WARNING",
+      "category": "capacite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_CAPACITE",
+      "action": "create_ticket",
+      "priority": "medium",
+      "message_fr": "Quota depasse sur un volume ou qtree - verifier les politiques de quota"
+    },
+    {
+      "pattern": "dns.timeout",
+      "severity": "ERROR",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_RESEAU",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Timeout DNS - resolution de nom impossible, verifier les serveurs DNS configures"
+    },
+    {
+      "pattern": "dns.lookup.fail",
+      "severity": "ERROR",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_RESEAU",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Echec resolution DNS - impact possible sur SnapMirror, CIFS, LDAP"
+    },
+    {
+      "pattern": "net.tcp.badChecksum",
+      "severity": "WARNING",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_RESEAU",
+      "action": "create_ticket",
+      "priority": "medium",
+      "message_fr": "Mauvais checksum TCP detecte - possible probleme NIC, cable ou switch"
+    },
+    {
+      "pattern": "net.tcp.badChecksum.high",
+      "severity": "ERROR",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_RESEAU",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Taux eleve de checksum TCP incorrects - instabilite reseau critique"
+    },
+    {
+      "pattern": "net.if.linkDown",
+      "severity": "ALERT",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_RESEAU",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Interface reseau DOWN - basculement sur port partenaire si disponible"
+    },
+    {
+      "pattern": "net.if.linkUp",
+      "severity": "WARNING",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_RESEAU",
+      "action": "update_ticket",
+      "priority": "low",
+      "message_fr": "Interface reseau revenue UP - verifier la stabilite flapping"
+    },
+    {
+      "pattern": "net.port.flapping",
+      "severity": "ERROR",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_RESEAU",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Port reseau en flapping - instabilite detectee, verifier le cablage et le switch"
+    },
+    {
+      "pattern": "lif.migrate",
+      "severity": "WARNING",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_RESEAU",
+      "action": "update_ticket",
+      "priority": "medium",
+      "message_fr": "Migration de LIF detectee - verifier si planifiee ou suite a un incident reseau"
+    },
+    {
+      "pattern": "lif.migrate.fail",
+      "severity": "ERROR",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_RESEAU",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Echec migration de LIF - acces client potentiellement impacte"
+    },
+    {
+      "pattern": "disk.sectorError",
+      "severity": "ERROR",
+      "category": "disque",
+      "jira_request_type": "JIRA_REQUEST_TYPE_DISQUE",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Erreur de secteur disque - risque perte donnees, remplacement preventif conseille"
+    },
+    {
+      "pattern": "disk.failure",
+      "severity": "EMERGENCY",
+      "category": "disque",
+      "jira_request_type": "JIRA_REQUEST_TYPE_DISQUE",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Disque en panne - reconstruction RAID en cours, intervention requise"
+    },
+    {
+      "pattern": "disk.predictive.failure",
+      "severity": "ALERT",
+      "category": "disque",
+      "jira_request_type": "JIRA_REQUEST_TYPE_DISQUE",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Defaillance disque previsible SMART - planifier le remplacement preventif"
+    },
+    {
+      "pattern": "raid.rg.recons.percent",
+      "severity": "WARNING",
+      "category": "disque",
+      "jira_request_type": "JIRA_REQUEST_TYPE_DISQUE",
+      "action": "update_ticket",
+      "priority": "medium",
+      "message_fr": "Reconstruction RAID en cours - surveiller progression, eviter E/S intensives"
+    },
+    {
+      "pattern": "raid.rg.recons.done",
+      "severity": "WARNING",
+      "category": "disque",
+      "jira_request_type": "JIRA_REQUEST_TYPE_DISQUE",
+      "action": "update_ticket",
+      "priority": "low",
+      "message_fr": "Reconstruction RAID terminee - verifier l integrite de l agregat"
+    },
+    {
+      "pattern": "raid.rg.bad.summ",
+      "severity": "EMERGENCY",
+      "category": "disque",
+      "jira_request_type": "JIRA_REQUEST_TYPE_DISQUE",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Erreur RAID critique double panne - risque de perte de donnees immediat"
+    },
+    {
+      "pattern": "disk.timeout",
+      "severity": "ERROR",
+      "category": "disque",
+      "jira_request_type": "JIRA_REQUEST_TYPE_DISQUE",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Timeout disque - possible probleme chemin SAN ou defaillance imminente"
+    },
+    {
+      "pattern": "fci.port.linkDown",
+      "severity": "ALERT",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_SAN",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Port Fibre Channel DOWN - verifier le cablage et le switch FC"
+    },
+    {
+      "pattern": "fci.port.linkUp",
+      "severity": "WARNING",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_SAN",
+      "action": "update_ticket",
+      "priority": "low",
+      "message_fr": "Port Fibre Channel revenu UP - verifier la stabilite"
+    },
+    {
+      "pattern": "san.lun.offline",
+      "severity": "EMERGENCY",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_SAN",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "LUN hors ligne - VM ou serveur potentiellement impacte, intervention immediate"
+    },
+    {
+      "pattern": "san.lun.online",
+      "severity": "WARNING",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_SAN",
+      "action": "update_ticket",
+      "priority": "low",
+      "message_fr": "LUN revenue en ligne - verifier l acces cote hote"
+    },
+    {
+      "pattern": "iscsi.connection.drop",
+      "severity": "ERROR",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_SAN",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Connexion iSCSI interrompue - verifier reseau stockage et initiateur"
+    },
+    {
+      "pattern": "audit.log.full",
+      "severity": "ERROR",
+      "category": "securite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_SECURITE",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Journal audit plein - evenements de securite ne sont plus enregistres"
+    },
+    {
+      "pattern": "fpolicy.server.disconnect",
+      "severity": "ERROR",
+      "category": "securite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_SECURITE",
+      "action": "create_ticket",
+      "priority": "high",
+      "message_fr": "Serveur FPolicy deconnecte - protection antivirus/ransomware inactive"
+    },
+    {
+      "pattern": "fpolicy.server.connect",
+      "severity": "WARNING",
+      "category": "securite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_SECURITE",
+      "action": "update_ticket",
+      "priority": "low",
+      "message_fr": "Serveur FPolicy reconnecte - protection restauree"
+    },
+    {
+      "pattern": "callhome.hainterconnect.down",
+      "severity": "EMERGENCY",
+      "category": "securite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_HA",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Interconnexion HA DOWN - risque de split-brain, intervention immediate requise"
+    },
+    {
+      "pattern": "callhome.reboot.unknown",
+      "severity": "ALERT",
+      "category": "securite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_SECURITE",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Redemarrage inattendu du noeud - analyser la cause panique ou coupure alimentation"
+    },
+    {
+      "pattern": "callhome.panic",
+      "severity": "EMERGENCY",
+      "category": "securite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_SECURITE",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Panique ONTAP detectee - collecte core dump et analyse requises immediatement"
+    },
+    {
+      "pattern": "cf.takeover.started",
+      "severity": "ALERT",
+      "category": "securite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_HA",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Takeover HA demarre - verifier la cause panne noeud ou maintenance"
+    },
+    {
+      "pattern": "cf.giveback.started",
+      "severity": "WARNING",
+      "category": "securite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_HA",
+      "action": "update_ticket",
+      "priority": "medium",
+      "message_fr": "Giveback HA demarre - retour a la configuration normale en cours"
+    },
+    {
+      "pattern": "cf.giveback.done",
+      "severity": "WARNING",
+      "category": "securite",
+      "jira_request_type": "JIRA_REQUEST_TYPE_HA",
+      "action": "update_ticket",
+      "priority": "low",
+      "message_fr": "Giveback HA termine - cluster revenu en configuration normale"
+    },
+    {
+      "pattern": "cluster.switch.linkDown",
+      "severity": "ALERT",
+      "category": "reseau",
+      "jira_request_type": "JIRA_REQUEST_TYPE_RESEAU",
+      "action": "create_ticket",
+      "priority": "highest",
+      "message_fr": "Lien cluster switch DOWN - communication inter-noeuds degradee"
+    },
+    {
+      "pattern": "monitor.temp.ok",
+      "severity": "WARNING",
+      "category": "securite",
+      "jira_request_type": null,
+      "action": "ignore",
+      "priority": "low",
+      "message_fr": "Temperature revenue a la normale - aucune action requise"
+    },
+    {
+      "pattern": "monitor.fan.ok",
+      "severity": "WARNING",
+      "category": "securite",
+      "jira_request_type": null,
+      "action": "ignore",
+      "priority": "low",
+      "message_fr": "Ventilateur revenu a la normale - aucune action requise"
+    },
+    {
+      "pattern": "scsiblade.sas.port.stable",
+      "severity": "WARNING",
+      "category": "disque",
+      "jira_request_type": null,
+      "action": "ignore",
+      "priority": "low",
+      "message_fr": "Port SAS stable - evenement informatif, aucune action requise"
     }
-  },
-
-  "known_events": {
-    "raid.rg.diskerr.read": {
-      "severity_override": "ALERT",
-      "category": "storage",
-      "auto_action": "check_spare_disks",
-      "kb_ref": "KB000123"
-    },
-    "wafl.vol.autosize.done": {
-      "severity_override": "NOTICE",
-      "category": "storage",
-      "auto_action": null,
-      "kb_ref": null
-    },
-    "snapmirror.dst.lag.warn": {
-      "severity_override": "WARNING",
-      "category": "pra",
-      "auto_action": "check_snapmirror_schedule",
-      "kb_ref": "KB000456"
-    },
-    "snapmirror.dst.lag.err": {
-      "severity_override": "ALERT",
-      "category": "pra",
-      "auto_action": "notify_oncall",
-      "kb_ref": "KB000456"
-    },
-    "vol.full": {
-      "severity_override": "ALERT",
-      "category": "storage",
-      "auto_action": "check_volume_autosize",
-      "kb_ref": "KB000789"
-    },
-    "aggr.nearly.full": {
-      "severity_override": "WARNING",
-      "category": "storage",
-      "auto_action": "check_aggregate_capacity",
-      "kb_ref": "KB000789"
-    },
-    "mgwd.partner.down": {
-      "severity_override": "EMERGENCY",
-      "category": "ha",
-      "auto_action": "notify_oncall_immediate",
-      "kb_ref": "KB001001"
-    }
-  }
+  ]
 }
