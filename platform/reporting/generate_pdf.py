@@ -231,19 +231,14 @@ def register_fonts() -> bool:
 
 # ── Parsing Markdown → éléments PDF ──────────────────────────────────────────
 
-EMOJI_RED    = ("🔴",)
-EMOJI_ORANGE = ("🟠",)
-EMOJI_GREEN  = ("🟢",)
-
-
 def detect_alert_color(line: str):
-    """Retourne la couleur d'alerte si la ligne commence par un emoji."""
-    stripped = line.lstrip("- *•").strip()
-    if any(stripped.startswith(e) for e in EMOJI_RED):
+    """Retourne la couleur d'alerte si la ligne contient un marqueur [CRITIQUE]/[ALERTE]/[OK]."""
+    stripped = line.lstrip("- *•0123456789.").strip()
+    if "[CRITIQUE]" in stripped:
         return "red"
-    if any(stripped.startswith(e) for e in EMOJI_ORANGE):
+    if "[ALERTE]" in stripped:
         return "orange"
-    if any(stripped.startswith(e) for e in EMOJI_GREEN):
+    if "[OK]" in stripped:
         return "green"
     return None
 
@@ -256,10 +251,10 @@ def inline_format(text: str, bold_font: str = "", mono_font: str = "") -> str:
     text = re.sub(r"\*\*(.+?)\*\*", r'<font name="' + bf + r'">\1</font>', text)
     # `code`
     text = re.sub(r"`(.+?)`", r'<font name="' + mf + r'" color="#555555">\1</font>', text)
-    # Emojis couleurs inline (🔴 → rouge)
-    text = text.replace("🔴", '<font color="#C0392B">🔴</font>')
-    text = text.replace("🟠", '<font color="#E67E22">🟠</font>')
-    text = text.replace("🟢", '<font color="#27AE60">🟢</font>')
+    # Marqueurs alertes → texte coloré gras
+    text = text.replace("[CRITIQUE]", '<font name="' + bf + '" color="#C0392B">[CRITIQUE]</font>')
+    text = text.replace("[ALERTE]",   '<font name="' + bf + '" color="#E67E22">[ALERTE]</font>')
+    text = text.replace("[OK]",       '<font name="' + bf + '" color="#27AE60">[OK]</font>')
     return text
 
 
@@ -520,8 +515,11 @@ def generate_pdf(
     else:
         print("INFO: Polices DejaVu non trouvees — fallback Helvetica/Courier")
 
-    # Lecture Markdown
+    # Lecture Markdown + normalisation emojis → marqueurs ASCII
     md_text = md_path.read_text(encoding="utf-8")
+    md_text = md_text.replace("🔴", "[CRITIQUE]")
+    md_text = md_text.replace("🟠", "[ALERTE]")
+    md_text = md_text.replace("🟢", "[OK]")
 
     # Styles
     styles = build_styles(use_dejavu=fonts_ok)
